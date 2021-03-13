@@ -1,9 +1,18 @@
 .App {
   text-align: center;
+  height: 100%;
+}
+
+canvas {
+  border: 1px solid;
 }
 
 .buttons button {
   margin-right: .5em;
+
+}
+
+.button {
   padding: .25em .75em;
   border-radius: 3px;
   border: 1px solid;
