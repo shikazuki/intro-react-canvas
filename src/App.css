@@ -18,3 +18,15 @@ canvas {
   border: 1px solid;
   min-width: 5em;
 }
+
+.editor {
+  position: fixed;
+  margin: 0;
+  border: none;
+  background: rgba(0,0,0,0);
+  resize: none;
+  outline: none;
+  text-align: center;
+  font-size: 24px;
+  font-family: sans-serif;
+}

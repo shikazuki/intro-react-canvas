@@ -38,6 +38,27 @@ function App() {
                   return;
                 }
               }}
+              onDoubleClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                if (!rect) return;
+                const touchedBox = boxes
+                  .filter(b => b.isTouchedIn(e))
+                  .reduce((touched: Box | null, box: Box) => {
+                    if (touched === null) return box;
+                    if (touched.index <= box.index) return box;
+                    return touched;
+                  }, null);
+                if (touchedBox) {
+                  setActiveId(touchedBox.id);
+                  const newBoxes = boxes.map(b => {
+                    if (b.id !== touchedBox.id) return b;
+                    b.isEditing = true;
+                    return b;
+                  });
+                  setBoxes(newBoxes);
+                  return;
+                }
+              }}
               onMouseDown={(e: React.MouseEvent<HTMLCanvasElement>) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 if (!rect) return;
@@ -105,10 +126,32 @@ function App() {
                 }
               }}
       />
+      {boxes.map(b => {
+        if (!b.isEditing) return null;
+        return <textarea key={b.id} className="editor"
+                         defaultValue={b.text}
+                         onBlur={(e) => {
+                           const newBoxes = boxes.map(b => {
+                             if (b.id !== activeId) return b;
+                             b.text = e.currentTarget.value;
+                             b.isEditing = false;
+                             return b;
+                           });
+                           setBoxes(newBoxes);
+                         }}
+                         style={{
+                           left: b.x + (canvasEl.current?.offsetLeft ?? 0),
+                           top: b.y + (canvasEl.current?.offsetTop ?? 0),
+                           width: b.width,
+                           height: b.height,
+                         }}
+
+        />
+      })}
       <div className="buttons">
         <button className="button" onClick={() => {
           const maxIndex = Math.max(...boxes.map(b => b.index)) + 1;
-          setBoxes([...boxes, new Box(10, 10, 30, 30, maxIndex)]);
+          setBoxes([...boxes, new Box(10, 10, 150, 50, maxIndex)]);
         }}>Add Box</button>
       </div>
     </div>

@@ -15,6 +15,8 @@ export class Box {
   public height: number;
   public index: number;
   public color: string;
+  public text: string = 'sample';
+  public isEditing: boolean = false;
 
   constructor(x: number, y: number, width: number, height: number, index: number, color: string = '#e0e0e0') {
     this.id = getUniqueId('box');
@@ -29,6 +31,11 @@ export class Box {
   draw(context: CanvasRenderingContext2D, activeId: string) {
     context.fillStyle = this.color;
     context.fillRect(this.x, this.y, this.width, this.height);
+
+    if (!this.isEditing) {
+      this.drawText(context);
+    }
+
     if (this.id === activeId) {
       this.drawBorder(context);
       this.drawResizePoint(context);
@@ -51,6 +58,14 @@ export class Box {
     context.lineWidth = 1;
     context.strokeStyle = 'white';
     context.stroke();
+  }
+
+  drawText(context: CanvasRenderingContext2D) {
+    context.font = '24px sans-serif';
+    context.fillStyle = '#000';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(this.text, this.x + (this.width / 2), this.y + (this.height / 2));
   }
 
   isTouchedIn(event: React.MouseEvent<HTMLCanvasElement>) {
