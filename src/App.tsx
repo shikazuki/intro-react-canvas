@@ -1,24 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
+import { useCanvas, canvasHelper } from './hooks/canvasHooks';
+
+const COLORS = ['red', 'blue', 'green'];
 
 function App() {
+  const { context, canvasEl } = useCanvas();
+  const [color, setColor] = useState('red');
+  useEffect(() => {
+    if (!context) return;
+    const helper = canvasHelper({ context, canvasEl });
+
+    helper.clearAll();
+
+    context.fillStyle = color;
+    context.fillRect(0, 0, helper.getCanvasWidth(), helper.getCanvasHeight());
+  }, [color, context, canvasEl]);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Canvas Drawing App</h1>
+      <canvas ref={canvasEl} />
+      <div className="buttons">
+        {COLORS.map(c => (<button key={c} onClick={() => setColor(c)}>{c}</button>))}
+      </div>
     </div>
   );
 }
