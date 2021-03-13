@@ -8,6 +8,7 @@ function App() {
   const [boxes, setBoxes] = useState<Array<Box>>([]);
   const [activeId, setActiveId] = useState('');
   const [dragged, setDragged] = useState(false);
+  const [resized, setResized] = useState(false);
   useEffect(() => {
     if (!context) return;
     const helper = canvasHelper({ context, canvasEl });
@@ -41,30 +42,67 @@ function App() {
                 const rect = e.currentTarget.getBoundingClientRect();
                 if (!rect) return;
                 const touchedBox = boxes
-                  .filter(b => b.isTouchedIn(e))
+                  .filter(b => b.isTouchedIn(e) || b.isTouchedResizePoint(e))
                   .reduce((touched: Box | null, box: Box) => {
                     if (touched === null) return box;
                     if (touched.index <= box.index) return box;
                     return touched;
                   }, null);
+                if (!touchedBox) return;
+
+                if (activeId !== '' && touchedBox.isTouchedResizePoint(e)) {
+                  setResized(true);
+                  return;
+                }
+
                 if (touchedBox) {
                   setActiveId(touchedBox.id);
                   setDragged(true);
+                  const newBoxes = boxes.map(b => {
+                    if (b.id !== touchedBox.id) return b;
+                    b.touchedX = (e.clientX - e.currentTarget.offsetLeft) - b.x;
+                    b.touchedY = (e.clientY - e.currentTarget.offsetTop) - b.y;
+                    return b;
+                  });
+                  setBoxes(newBoxes);
                   return;
                 }
               }}
               onMouseMove={(e) => {
-                if (!dragged) return;
-                const newBoxes = boxes.map(b => {
-                  if (b.id !== activeId) return b;
-                  b.x = e.clientX - e.currentTarget.offsetLeft - (b.width / 2);
-                  b.y = e.clientY - e.currentTarget.offsetTop - (b.height / 2);
-                  return b;
-                });
-                setBoxes(newBoxes);
+                if (dragged){
+                  const newBoxes = boxes.map(b => {
+                    if (b.id !== activeId) return b;
+                    b.x = e.clientX - e.currentTarget.offsetLeft - b.touchedX;
+                    b.y = e.clientY - e.currentTarget.offsetTop - b.touchedY;
+                    return b;
+                  });
+                  setBoxes(newBoxes);
+                  return;
+                }
+                if (resized) {
+                  const newBoxes = boxes.map(b => {
+                    if (b.id !== activeId) return b;
+                    b.width = e.clientX - e.currentTarget.offsetLeft - b.x;
+                    b.height = e.clientY - e.currentTarget.offsetTop - b.y;
+                    return b;
+                  });
+                  setBoxes(newBoxes);
+                }
               }}
               onMouseUp={() => {
-                setDragged(false);
+                if (dragged) {
+                  setDragged(false);
+                  const newBoxes = boxes.map(b => {
+                    if (b.id !== activeId) return b;
+                    b.touchedX = 0;
+                    b.touchedY = 0;
+                    return b;
+                  });
+                  setBoxes(newBoxes);
+                }
+                if (resized) {
+                  setResized(false);
+                }
               }}
       />
       <div className="buttons">

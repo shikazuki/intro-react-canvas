@@ -9,12 +9,14 @@ export class Box {
   public id: string;
   public x: number;
   public y: number;
+  public touchedX: number = 0;
+  public touchedY: number = 0;
   public width: number;
   public height: number;
   public index: number;
   public color: string;
 
-  constructor(x: number, y: number, width: number, height: number, index: number, color: string = 'black') {
+  constructor(x: number, y: number, width: number, height: number, index: number, color: string = '#e0e0e0') {
     this.id = getUniqueId('box');
     this.x = x;
     this.y = y;
@@ -28,20 +30,44 @@ export class Box {
     context.fillStyle = this.color;
     context.fillRect(this.x, this.y, this.width, this.height);
     if (this.id === activeId) {
-      context.lineWidth = 3;
-      context.strokeStyle = 'green';
-      context.strokeRect(this.x, this.y, this.width, this.height);
+      this.drawBorder(context);
+      this.drawResizePoint(context);
     }
+  }
+
+  drawBorder(context: CanvasRenderingContext2D) {
+    context.lineWidth = 2;
+    context.strokeStyle = '#000';
+    context.setLineDash([3]);
+    context.strokeRect(this.x, this.y, this.width, this.height);
+    context.setLineDash([]);
+  }
+
+  drawResizePoint(context: CanvasRenderingContext2D) {
+    context.beginPath();
+    context.fillStyle = '#33CCFF';
+    context.arc(this.x + this.width, this.y + this.height, 5, 0, 360);
+    context.fill();
+    context.lineWidth = 1;
+    context.strokeStyle = 'white';
+    context.stroke();
   }
 
   isTouchedIn(event: React.MouseEvent<HTMLCanvasElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     if (!rect) return;
+    const diffX = (event.clientX - rect.left) - this.x;
+    const diffY = (event.clientY - rect.top) - this.y;
+    const isInX = Math.sign(this.width) === Math.sign(diffX) && Math.abs(diffX) <= Math.abs(this.width);
+    const isInY = Math.sign(this.height) === Math.sign(diffY) && Math.abs(diffY) <= Math.abs(this.height);
+    return isInX && isInY;
+  }
+
+  isTouchedResizePoint(event: React.MouseEvent<HTMLCanvasElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (!rect) return;
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    return this.x <= x
-      && x <= (this.x + this.width)
-      && this.y <= y
-      && y <= (this.y + this.height);
+    return Math.pow(this.x + this.width - x, 2) + Math.pow(this.y + this.height - y, 2) <= Math.pow(5, 2);
   }
 }
