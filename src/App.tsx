@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import './App.css';
 import { useCanvas, canvasHelper } from './hooks/canvasHooks';
-import {TextBox, Shape} from './shape';
+import {TextBox, Shape, CircleBox} from './shape';
 import {useArray} from "./hooks/arrayHooks";
 
 
@@ -180,6 +180,10 @@ function App() {
                 const maxIndex = Math.max(...shapes.map(b => b.index), 0) + 1;
                 setShapes.add(new TextBox('', 10, 10, 150, 50, maxIndex));
               }}>TextBox</button>
+              <button className="button icon" onClick={() => {
+                const maxIndex = Math.max(...shapes.map(b => b.index), 0) + 1;
+                setShapes.add(new CircleBox('', 10, 10, 100, 100, maxIndex));
+              }}>CircleBox</button>
             </div>
           </section>
           <ShapeStyle shape={shapes.find(b => b.id === activatedId)}
@@ -221,6 +225,26 @@ function ShapeStyle(props: ShapeStyleProps) {
                 <label>Font Color</label>
                 <input type="text" value={clone.fontColor} onChange={(e) => {
                   clone.fontColor = e.target.value;
+                  props.changeShape(clone);
+                }} />
+              </div>
+              <div className="form-item">
+                <label>Background Color</label>
+                <input type="text" value={clone.color} onChange={(e) => {
+                  clone.color = e.target.value;
+                  props.changeShape(clone);
+                }} />
+              </div>
+            </>
+          )
+        }
+        {
+          clone instanceof CircleBox && (
+            <>
+              <div className="form-item">
+                <label>Background Color</label>
+                <input type="text" value={clone.color} onChange={(e) => {
+                  clone.color = e.target.value;
                   props.changeShape(clone);
                 }} />
               </div>
@@ -266,13 +290,6 @@ function ShapeStyle(props: ShapeStyleProps) {
               props.changeShape(clone);
             }} />
           </div>
-        </div>
-        <div className="form-item">
-          <label>Background Color</label>
-          <input type="text" value={clone.color} onChange={(e) => {
-            clone.color = e.target.value;
-            props.changeShape(clone);
-          }} />
         </div>
       </div>
     </section>
