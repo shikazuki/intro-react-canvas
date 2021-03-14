@@ -5,21 +5,19 @@ const getUniqueId = (prefix: string = '') => {
   return `${prefix}${id++}`;
 };
 
-export class Box {
+export class Shape {
+  protected PREFIX_KEY: string = '';
   public id: string;
   public x: number;
   public y: number;
-  public touchedX: number = 0;
-  public touchedY: number = 0;
   public width: number;
   public height: number;
   public index: number;
   public color: string;
-  public text: string = 'sample';
-  public isEditing: boolean = false;
 
-  constructor(x: number, y: number, width: number, height: number, index: number, color: string = '#f0f0f0') {
-    this.id = getUniqueId('box');
+
+  constructor(id: string, x: number, y: number, width: number, height: number, index: number, color: string = 'rgba(0,0,0)') {
+    this.id = id || getUniqueId(this.PREFIX_KEY);
     this.x = x;
     this.y = y;
     this.width = width;
@@ -28,19 +26,16 @@ export class Box {
     this.color = color;
   }
 
-  draw(context: CanvasRenderingContext2D, activeId: string) {
+  draw(context: CanvasRenderingContext2D, activatedId: string) {
     context.fillStyle = this.color;
     context.fillRect(this.x, this.y, this.width, this.height);
 
-    if (!this.isEditing) {
-      this.drawText(context);
-    }
-
-    if (this.id === activeId) {
+    if (this.id === activatedId) {
       this.drawBorder(context);
       this.drawResizePoint(context);
     }
   }
+
 
   drawBorder(context: CanvasRenderingContext2D) {
     context.lineWidth = 3;
@@ -49,6 +44,7 @@ export class Box {
     context.strokeRect(this.x, this.y, this.width, this.height);
     context.setLineDash([]);
   }
+
 
   drawResizePoint(context: CanvasRenderingContext2D) {
     context.beginPath();
@@ -60,6 +56,48 @@ export class Box {
     context.stroke();
   }
 
+  isTouchedIn(event: React.MouseEvent<HTMLCanvasElement>): boolean {
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (!rect) return false;
+    const diffX = (event.clientX - rect.left) - this.x;
+    const diffY = (event.clientY - rect.top) - this.y;
+    const isInX = Math.sign(this.width) === Math.sign(diffX) && Math.abs(diffX) <= Math.abs(this.width);
+    const isInY = Math.sign(this.height) === Math.sign(diffY) && Math.abs(diffY) <= Math.abs(this.height);
+    return isInX && isInY;
+  }
+
+  isTouchedResizePoint(event: React.MouseEvent<HTMLCanvasElement>): boolean {
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (!rect) return false;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return Math.pow(this.x + this.width - x, 2) + Math.pow(this.y + this.height - y, 2) <= Math.pow(5, 2);
+  }
+
+
+  clone(): Shape {
+    return new Shape(this.id, this.x, this.y, this.width, this.height, this.index, this.color);
+  }
+}
+
+
+export class TextBox extends Shape {
+  protected PREFIX_KEY: string = 'box';
+  public text: string = '';
+  public isEditing: boolean = false;
+
+  constructor(id: string, x: number, y: number, width: number, height: number, index: number, color: string = '#f0f0f0') {
+    super(id, x, y, width, height, index, color);
+  }
+
+  draw(context: CanvasRenderingContext2D, activeId: string) {
+    super.draw(context, activeId);
+
+    if (!this.isEditing) {
+      this.drawText(context);
+    }
+  }
+
   drawText(context: CanvasRenderingContext2D) {
     context.font = '24px sans-serif';
     context.fillStyle = '#000';
@@ -68,21 +106,10 @@ export class Box {
     context.fillText(this.text, this.x + (this.width / 2), this.y + (this.height / 2));
   }
 
-  isTouchedIn(event: React.MouseEvent<HTMLCanvasElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    if (!rect) return;
-    const diffX = (event.clientX - rect.left) - this.x;
-    const diffY = (event.clientY - rect.top) - this.y;
-    const isInX = Math.sign(this.width) === Math.sign(diffX) && Math.abs(diffX) <= Math.abs(this.width);
-    const isInY = Math.sign(this.height) === Math.sign(diffY) && Math.abs(diffY) <= Math.abs(this.height);
-    return isInX && isInY;
-  }
-
-  isTouchedResizePoint(event: React.MouseEvent<HTMLCanvasElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    if (!rect) return;
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    return Math.pow(this.x + this.width - x, 2) + Math.pow(this.y + this.height - y, 2) <= Math.pow(5, 2);
+  clone(): TextBox {
+    const box = new TextBox(this.id, this.x, this.y, this.width, this.height, this.index, this.color);
+    box.text = this.text;
+    box.isEditing = this.isEditing;
+    return box;
   }
 }
