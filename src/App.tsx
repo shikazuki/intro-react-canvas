@@ -15,6 +15,7 @@ interface ChangeShapeState {
   click: (shape: Shape) => void;
   dragStart: (e: React.MouseEvent<HTMLCanvasElement>, shape: Shape) => void;
   dragEnd: () => void;
+  blur: () => void;
 }
 function useShapeState(): [state: ShapeState, func: ChangeShapeState] {
   const [shapeState, setShapeState] = useState<ShapeState>({ activatedId: '', dragged: false, touchedX: 0, touchedY: 0 });
@@ -39,6 +40,15 @@ function useShapeState(): [state: ShapeState, func: ChangeShapeState] {
           dragged: false,
           touchedX: 0,
           touchedY: 0
+        }));
+      }, []),
+      blur: useCallback(() => {
+        setShapeState((state) => ({
+          ...state,
+          activatedId: '',
+          dragged: false,
+          touchedX: 0,
+          touchedY: 0,
         }));
       }, []),
     }
@@ -137,12 +147,20 @@ function App() {
                       });
                     }
                   }}
-                  onMouseUp={() => {
+                  onMouseUp={(e) => {
                     if (shapeState.dragged) {
                       setShapeState.dragEnd();
+                      return;
                     }
                     if (resized) {
                       setResized(false);
+                      return;
+                    }
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    if (!rect) return;
+                    const touchedBox = findTouchedShape(shapes, e);
+                    if (!touchedBox) {
+                      setShapeState.blur();
                     }
                   }}
           />
