@@ -179,7 +179,7 @@ function App() {
               <button className="button icon" onClick={() => {
                 const maxIndex = Math.max(...shapes.map(b => b.index), 0) + 1;
                 setShapes.add(new TextBox('', 10, 10, 150, 50, maxIndex));
-              }}>Box</button>
+              }}>TextBox</button>
             </div>
           </section>
           <ShapeStyle shape={shapes.find(b => b.id === activatedId)}
