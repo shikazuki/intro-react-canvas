@@ -1,10 +1,9 @@
-.App {
-  text-align: center;
+.app {
   height: 100%;
 }
 
-canvas {
-  border: 1px solid;
+.title {
+  text-align: center;
 }
 
 .buttons button {
@@ -13,10 +12,19 @@ canvas {
 }
 
 .button {
-  padding: .25em .75em;
+  padding: .75em 1.5em;
   border-radius: 3px;
-  border: 1px solid;
+  border: 1px solid rgb(0, 176, 168);
   min-width: 5em;
+  outline: none;
+  color: rgb(0, 176, 168);
+  background-color: #fff;
+  font-weight: 400;
+
+}
+.button:focus,.button:hover,.button:active {
+  color: rgb(0, 158, 151);
+;
 }
 
 .editor {
@@ -30,3 +38,60 @@ canvas {
   font-size: 24px;
   font-family: sans-serif;
 }
+
+.drawing-area {
+  display: flex;
+  padding: 0 2em;
+}
+
+.canvas-area {
+  width: 1200px;
+  height: 700px;
+  border: 1px solid #272343;
+}
+
+.edit-area {
+  padding: 0 .75em;
+  background-color: #e0e0e0;
+  width: calc(100% - (1200px));
+}
+
+.edit-body {
+  margin-left: 1em;
+}
+
+.form-item {
+  margin-bottom: .5em;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.form-group .form-item {
+  margin-left: .5em;
+}
+
+.form-group .form-item:first-child {
+  margin-left: 0;
+}
+
+.form-item label {
+  display: block;
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.form-item input[type=text] {
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  padding: .5em 1em;
+  font-size: 1.2em;
+  outline: none;
+  width: calc(100% - 2em - 2px);
+}
+
+

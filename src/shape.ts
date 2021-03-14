@@ -18,7 +18,7 @@ export class Box {
   public text: string = 'sample';
   public isEditing: boolean = false;
 
-  constructor(x: number, y: number, width: number, height: number, index: number, color: string = '#e0e0e0') {
+  constructor(x: number, y: number, width: number, height: number, index: number, color: string = '#f0f0f0') {
     this.id = getUniqueId('box');
     this.x = x;
     this.y = y;
@@ -43,8 +43,8 @@ export class Box {
   }
 
   drawBorder(context: CanvasRenderingContext2D) {
-    context.lineWidth = 2;
-    context.strokeStyle = '#000';
+    context.lineWidth = 3;
+    context.strokeStyle = '#33CCFF';
     context.setLineDash([3]);
     context.strokeRect(this.x, this.y, this.width, this.height);
     context.setLineDash([]);
@@ -52,11 +52,11 @@ export class Box {
 
   drawResizePoint(context: CanvasRenderingContext2D) {
     context.beginPath();
-    context.fillStyle = '#33CCFF';
+    context.fillStyle = '#fff';
     context.arc(this.x + this.width, this.y + this.height, 5, 0, 360);
     context.fill();
-    context.lineWidth = 1;
-    context.strokeStyle = 'white';
+    context.lineWidth = 2;
+    context.strokeStyle = '#33CCFF';
     context.stroke();
   }
 
