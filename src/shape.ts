@@ -6,7 +6,6 @@ const getUniqueId = (prefix: string = '') => {
 };
 
 export class Shape {
-  protected PREFIX_KEY: string = '';
   public id: string;
   public x: number;
   public y: number;
@@ -17,13 +16,17 @@ export class Shape {
 
 
   constructor(id: string, x: number, y: number, width: number, height: number, index: number, color: string = 'rgba(0,0,0)') {
-    this.id = id || getUniqueId(this.PREFIX_KEY);
+    this.id = id || getUniqueId(this.getPrefixKey());
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.index = index;
     this.color = color;
+  }
+
+  protected getPrefixKey() {
+    return '';
   }
 
   draw(context: CanvasRenderingContext2D, activatedId: string) {
@@ -82,12 +85,16 @@ export class Shape {
 
 
 export class TextBox extends Shape {
-  protected PREFIX_KEY: string = 'box';
   public text: string = '';
+  public fontColor: string = '#000';
   public isEditing: boolean = false;
 
   constructor(id: string, x: number, y: number, width: number, height: number, index: number, color: string = '#f0f0f0') {
     super(id, x, y, width, height, index, color);
+  }
+
+  protected getPrefixKey(): string {
+    return 'box';
   }
 
   draw(context: CanvasRenderingContext2D, activeId: string) {
@@ -100,7 +107,7 @@ export class TextBox extends Shape {
 
   drawText(context: CanvasRenderingContext2D) {
     context.font = '24px sans-serif';
-    context.fillStyle = '#000';
+    context.fillStyle = this.fontColor;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText(this.text, this.x + (this.width / 2), this.y + (this.height / 2));
@@ -109,6 +116,7 @@ export class TextBox extends Shape {
   clone(): TextBox {
     const box = new TextBox(this.id, this.x, this.y, this.width, this.height, this.index, this.color);
     box.text = this.text;
+    box.fontColor = this.fontColor;
     box.isEditing = this.isEditing;
     return box;
   }

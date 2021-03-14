@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import './App.css';
 import { useCanvas, canvasHelper } from './hooks/canvasHooks';
 import {TextBox, Shape} from './shape';
@@ -155,7 +155,7 @@ function App() {
                              onBlur={(e) => {
                                setShapes.replace((s) => {
                                  if (!(s instanceof TextBox)) return s;
-                                 if (s.id !== activatedId) return s;
+                                 if (s.id !== b.id) return s;
                                  let copy = s.clone();
                                  copy.text = e.currentTarget.value;
                                  copy.isEditing = false;
@@ -182,7 +182,10 @@ function App() {
               }}>Box</button>
             </div>
           </section>
-          <ShapeStyle shape={shapes.find(b => b.id === activatedId)} />
+          <ShapeStyle shape={shapes.find(b => b.id === activatedId)}
+                      changeShape={(shape: Shape) => setShapes.replace((s) => {
+                        return shape.id === s.id ? shape : s;
+                      })} />
         </div>
       </section>
 
@@ -192,43 +195,84 @@ function App() {
 
 interface ShapeStyleProps {
   shape: Shape | undefined;
+  changeShape: (shape: Shape) => void;
 }
 
 function ShapeStyle(props: ShapeStyleProps) {
   const { shape } = props;
-  if (shape === undefined) return null;
+  const clone = useMemo<Shape | undefined>(() => (shape ? shape.clone() : undefined), [shape]);
+  if (clone === undefined) return null;
 
   return (
     <section>
       <h3>Box Style</h3>
       <div className="edit-body">
         {
-          shape instanceof TextBox && (
-            <div className="form-item">
-              <label>Text</label>
-              <input type="text" value={shape.text} />
-            </div>
+          clone instanceof TextBox && (
+            <>
+              <div className="form-item">
+                <label>Text</label>
+                <input type="text" value={clone.text} onChange={(e) => {
+                  clone.text = e.target.value;
+                  props.changeShape(clone);
+                }} />
+              </div>
+              <div className="form-item">
+                <label>Font Color</label>
+                <input type="text" value={clone.fontColor} onChange={(e) => {
+                  clone.fontColor = e.target.value;
+                  props.changeShape(clone);
+                }} />
+              </div>
+            </>
           )
         }
         <div className="form-group">
           <div className="form-item">
             <label>x</label>
-            <input type="text" value={shape.x} />
+            <input type="text" value={clone.x} onChange={(e) => {
+              const value = Number(e.target.value);
+              if (isNaN(value)) return;
+              clone.x = value;
+              props.changeShape(clone);
+            }} />
           </div>
           <div className="form-item">
             <label>y</label>
-            <input type="text" value={shape.y} />
+            <input type="text" value={clone.y} onChange={(e) => {
+              const value = Number(e.target.value);
+              if (isNaN(value)) return;
+              clone.y = value;
+              props.changeShape(clone);
+            }} />
           </div>
         </div>
         <div className="form-group">
           <div className="form-item">
             <label>width</label>
-            <input type="text" value={shape.width} />
+            <input type="text" value={clone.width} onChange={(e) => {
+              const value = Number(e.target.value);
+              if (isNaN(value)) return;
+              clone.width = value;
+              props.changeShape(clone);
+            }} />
           </div>
           <div className="form-item">
             <label>height</label>
-            <input type="text" value={shape.height} />
+            <input type="text" value={clone.height} onChange={(e) => {
+              const value = Number(e.target.value);
+              if (isNaN(value)) return;
+              clone.height = value;
+              props.changeShape(clone);
+            }} />
           </div>
+        </div>
+        <div className="form-item">
+          <label>Background Color</label>
+          <input type="text" value={clone.color} onChange={(e) => {
+            clone.color = e.target.value;
+            props.changeShape(clone);
+          }} />
         </div>
       </div>
     </section>
